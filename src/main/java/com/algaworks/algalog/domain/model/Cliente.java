@@ -1,7 +1,5 @@
 package com.algaworks.algalog.domain.model;
 
-import java.util.Objects;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -20,13 +18,13 @@ import lombok.Setter;
 @Setter
 @Entity
 public class Cliente {
-	
+
 	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@NotBlank /* Nome não pode ser null e nem vazio */
+	@NotBlank
 	@Size(max = 60)
 	private String nome;
 	
@@ -35,26 +33,9 @@ public class Cliente {
 	@Size(max = 255)
 	private String email;
 	
-	@Column(name = "fone")
-	@Size(max = 20)
 	@NotBlank
+	@Size(max = 20)
+	@Column(name = "fone")
 	private String telefone;
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Cliente other = (Cliente) obj;
-		return Objects.equals(id, other.id);
-	}
 	
 }
