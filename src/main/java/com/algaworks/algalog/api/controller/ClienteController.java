@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.algaworks.algalog.domain.model.Cliente;
 import com.algaworks.algalog.domain.repository.ClienteRepository;
+import com.algaworks.algalog.domain.service.CatalogoClienteService;
 
 @RestController
 @RequestMapping("/clientes")
@@ -27,6 +28,7 @@ public class ClienteController {
 	
 	@Autowired
 	private ClienteRepository clienteRepository;
+	private CatalogoClienteService catalogoClienteService;
 	
 	@GetMapping
 	public List<Cliente> listar() {
@@ -42,7 +44,8 @@ public class ClienteController {
 	@ResponseStatus(HttpStatus.CREATED) /*Altera o status do padrão 200 para 201 Created*/
 	public Cliente adicionar(@Valid @RequestBody Cliente cliente) {
 		/*Por padrão ele sempre retorna o status 200 do metodo HTTP*/
-		return clienteRepository.save(cliente);
+		//return clienteRepository.save(cliente);
+		return catalogoClienteService.salvar(cliente);
 	}
 	
 	@PutMapping("/{id}")
@@ -54,7 +57,8 @@ public class ClienteController {
 		/* Deve-se passar o id para o cliente, pois ele não vem da URL.
 		 * Se não setarmos o id, o sistema cria um novo objeto Cliente.*/
 		cliente.setId(id);
-		cliente = clienteRepository.save(cliente);
+		//cliente = clienteRepository.save(cliente);
+		cliente = catalogoClienteService.salvar(cliente);
 		return ResponseEntity.ok(cliente);
 	}
 	
@@ -63,7 +67,7 @@ public class ClienteController {
 		if (!clienteRepository.existsById(id)) {
 			return ResponseEntity.notFound().build();
 		}
-		clienteRepository.deleteById(id);
+		catalogoClienteService.excluir(id);
 		/* O retorno é um 204, retorno "ok" porem para deletar */
 		return ResponseEntity.noContent().build();
 	}
