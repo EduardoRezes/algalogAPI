@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,52 +18,58 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.algaworks.algalog.domain.model.Cliente;
 import com.algaworks.algalog.domain.repository.ClienteRepository;
+import com.algaworks.algalog.domain.service.CatalogoClienteService;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {
 
-	
-	@Autowired
 	private ClienteRepository clienteRepository;
-	
+	private CatalogoClienteService catalogoClienteService;
+
 	@GetMapping
 	public List<Cliente> listar() {
 		return clienteRepository.findAll();
 	}
 	
-	@GetMapping("/{id}")
-	public ResponseEntity<Cliente> buscar(@PathVariable Long id) {
-		return clienteRepository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());	
+	@GetMapping("/{clienteId}")
+	public ResponseEntity<Cliente> buscar(@PathVariable Long clienteId) {
+		return clienteRepository.findById(clienteId)
+				.map(ResponseEntity::ok)
+				.orElse(ResponseEntity.notFound().build());
 	}
 	
 	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED) /*Altera o status do padrão 200 para 201 Created*/
+	@ResponseStatus(HttpStatus.CREATED)
 	public Cliente adicionar(@Valid @RequestBody Cliente cliente) {
-		/*Por padrão ele sempre retorna o status 200 do metodo HTTP*/
-		return clienteRepository.save(cliente);
+		return catalogoClienteService.salvar(cliente);
 	}
 	
-	@PutMapping("/{id}")
-	public ResponseEntity<Cliente> atualizar(@Valid @PathVariable Long id,@RequestBody Cliente cliente) {
-		if (!clienteRepository.existsById(id)) {
+	@PutMapping("/{clienteId}")
+	public ResponseEntity<Cliente> atualizar(@PathVariable Long clienteId, 
+			@Valid @RequestBody Cliente cliente) {
+		if (!clienteRepository.existsById(clienteId)) {
 			return ResponseEntity.notFound().build();
 		}
 		
-		/* Deve-se passar o id para o cliente, pois ele não vem da URL.
-		 * Se não setarmos o id, o sistema cria um novo objeto Cliente.*/
-		cliente.setId(id);
-		cliente = clienteRepository.save(cliente);
+		cliente.setId(clienteId);
+		cliente = catalogoClienteService.salvar(cliente);
+		
 		return ResponseEntity.ok(cliente);
 	}
 	
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> remover(@PathVariable Long id) {
-		if (!clienteRepository.existsById(id)) {
+	@DeleteMapping("/{clienteId}")
+	public ResponseEntity<Void> remover(@PathVariable Long clienteId) {
+		if (!clienteRepository.existsById(clienteId)) {
 			return ResponseEntity.notFound().build();
 		}
-		clienteRepository.deleteById(id);
-		/* O retorno é um 204, retorno "ok" porem para deletar */
+		
+		catalogoClienteService.excluir(clienteId);
+		
 		return ResponseEntity.noContent().build();
 	}
+	
 }
