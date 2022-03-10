@@ -22,19 +22,17 @@ import com.algaworks.algalog.domain.exception.NegocioException;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-@ControllerAdvice /* Função da anotação, diz que a classe é um componente do Spring, porem com o proposito Especifico de tratar as excessões de forma global. */
-public class ApiExceptionHandler extends ResponseEntityExceptionHandler{
-	
+@ControllerAdvice
+public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
+
 	private MessageSource messageSource;
 	
-	/* extendendo a classe com ResponseEntityExceptionHandler, tem varios métodos disponiveis */
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
 		List<Problema.Campo> campos = new ArrayList<>();
 		
 		for (ObjectError error : ex.getBindingResult().getAllErrors()) {
-			/*Pegar qual campo está com erro*/
 			String nome = ((FieldError) error).getField();
 			String mensagem = messageSource.getMessage(error, LocaleContextHolder.getLocale());
 			
@@ -51,14 +49,15 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler{
 	}
 	
 	@ExceptionHandler(NegocioException.class)
-	public ResponseEntity<Object> handleNogocio(NegocioException ex, WebRequest request){
+	public ResponseEntity<Object> handleNegocio(NegocioException ex, WebRequest request) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		
 		Problema problema = new Problema();
 		problema.setStatus(status.value());
 		problema.setDataHora(LocalDateTime.now());
-		problema.setTitulo("Já existe um cliente cadastrado com este e-mail.");
+		problema.setTitulo(ex.getMessage());
 		
 		return handleExceptionInternal(ex, problema, new HttpHeaders(), status, request);
 	}
+	
 }
